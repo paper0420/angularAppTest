@@ -1,29 +1,17 @@
-# Stage 1: Compile and Build angular codebase
-
-# Use official node image as the base image
 FROM node:latest as build
 
-# Set the working directory
-WORKDIR /usr/local/app
+WORKDIR /source
 
-# Add the source code to app
-COPY ./ /usr/local/app/
+# Copy the package lock file into the container
+COPY package*.json ./
+# Run ci only for the production dependencies
+RUN npm ci
 
-# Install all the dependencies
-RUN npm install
+# Copy the rest of the files into the container and build
+COPY . .
+RUN npm run build --prod
 
-# Generate the build of the application
-RUN npm run build
-
-
-# Stage 2: Serve app with nginx server
-
-# Use official nginx image as the base image
-FROM nginx:latest
-
-# Copy the build output to replace the default nginx contents.
-COPY --from=build /usr/local/app/dist/angular-app-test /usr/share/nginx/html
-
-
-# Expose port 80
+FROM nginx:alpine
+COPY --from=build /source/dist/angularapptest /usr/share/nginx/html
+COPY --from=build /source/nginx.conf /etc/nginx/conf.d/
 EXPOSE 8080
