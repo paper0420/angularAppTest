@@ -12,6 +12,6 @@ COPY . .
 RUN npm run build --prod
 
 FROM nginx:alpine
-COPY --from=build /source/dist/angularapptest /usr/share/nginx/html
+COPY --from=build /source/dist/angular-app-test /usr/share/nginx/html
 COPY --from=build /source/nginx.conf /etc/nginx/conf.d/
 EXPOSE 8080
